@@ -1,0 +1,1 @@
+[Source - AVL Trees](https://medium.com/@stephenagrice/how-to-implement-a-binary-search-tree-in-python-e1cdba29c533)
