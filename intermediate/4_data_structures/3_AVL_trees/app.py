@@ -1,262 +1,202 @@
-#import random, math
+class Node(object):
+	def __init__(self, d):
+		self.data = d
+		self.left = None
+		self.right = None
+	def insert(self, d):
+		if self.data == d:
+			return False
+		elif d < self.data:
+			if self.left:
+				return self.left.insert(d)
+			else:
+				self.left = Node(d)
+				return True
+		else:
+			if self.right:
+				return self.right.insert(d)
+			else:
+				self.right = Node(d)
+				return True
+	def find(self, d):
+		if self.data == d:
+			return True
+		elif d < self.data and self.left:
+			return self.left.find(d)
+		elif d > self.data and self.right:
+			return self.right.find(d)
+		return False
+	def preorder(self, l):
+		l.append(self.data)
+		if self.left:
+			self.left.preorder(l)
+		if self.right:
+			self.right.preorder(l)
+		return l
+	def postorder(self, l):
+		if self.left:
+			self.left.postorder(l)
+		if self.right:
+			self.right.postorder(l)
+		l.append(self.data)
+		return l
+	def inorder(self, l):
+		if self.left:
+			self.left.inorder(l)
+		l.append(self.data)
+		if self.right:
+			self.right.inorder(l)
+		return l
+		
+class BinarySearchTree(object):
+	def __init__(self):
+		self.root = None
+	# return True if successfully inserted, false if exists
+	def insert(self, d):
+		if self.root:
+			return self.root.insert(d)
+		else:
+			self.root = Node(d)
+			return True
+	# return True if d is found in tree, false otherwise
+	def find(self, d):
+		if self.root:
+			return self.root.find(d)
+		else:
+			return False
+	# return True if node successfully removed, False if not removed
+	def remove(self, d):
+		# Case 1: Empty Tree?
+		if self.root == None:
+			return False
+		
+		# Case 2: Deleting root node
+		if self.root.data == d:
+			# Case 2.1: Root node has no children
+			if self.root.left is None and self.root.right is None:
+				self.root = None
+				return True
+			# Case 2.2: Root node has left child
+			elif self.root.left and self.root.right is None:
+				self.root = self.root.left
+				return True
+			# Case 2.3: Root node has right child
+			elif self.root.left is None and self.root.right:
+				self.root = self.root.right
+				return True
+			# Case 2.4: Root node has two children
+			else:
+				moveNode = self.root.right
+				moveNodeParent = None
+				while moveNode.left:
+					moveNodeParent = moveNode
+					moveNode = moveNode.left
+				self.root.data = moveNode.data
+				if moveNode.data < moveNodeParent.data:
+					moveNodeParent.left = None
+				else:
+					moveNodeParent.right = None
+				return True		
+		# Find node to remove
+		parent = None
+		node = self.root
+		while node and node.data != d:
+			parent = node
+			if d < node.data:
+				node = node.left
+			elif d > node.data:
+				node = node.right
+		# Case 3: Node not found
+		if node == None or node.data != d:
+			return False
+		# Case 4: Node has no children
+		elif node.left is None and node.right is None:
+			if d < parent.data:
+				parent.left = None
+			else:
+				parent.right = None
+			return True
+		# Case 5: Node has left child only
+		elif node.left and node.right is None:
+			if d < parent.data:
+				parent.left = node.left
+			else:
+				parent.right = node.left
+			return True
+		# Case 6: Node has right child only
+		elif node.left is None and node.right:
+			if d < parent.data:
+				parent.left = node.right
+			else:
+				parent.right = node.right
+			return True
+		# Case 7: Node has left and right child
+		else:
+			moveNodeParent = node
+			moveNode = node.right
+			while moveNode.left:
+				moveNodeParent = moveNode
+				moveNode = moveNode.left
+			node.data = moveNode.data
+			if moveNode.right:
+				if moveNode.data < moveNodeParent.data:
+					moveNodeParent.left = moveNode.right
+				else:
+					moveNodeParent.right = moveNode.right
+			else:
+				if moveNode.data < moveNodeParent.data:
+					moveNodeParent.left = None
+				else:
+					moveNodeParent.right = None
+			return True
+	# return list of data elements resulting from preorder tree traversal
+	def preorder(self):
+		if self.root:
+			return self.root.preorder([])
+		else:
+			return []
+	# return list of postorder elements
+	def postorder(self):
+		if self.root:
+			return self.root.postorder([])
+		else:
+			return []
+	# return list of inorder elements
+	def inorder(self):
+		if self.root:
+			return self.root.inorder([])
+		else:
+			return []
 
-outputdebug = False 
+bst = BinarySearchTree()
+bst.insert(50)
+bst.insert(33)
+bst.insert(20)
+bst.insert(32)
+bst.insert(12)
+bst.insert(2)
+bst.insert(3)
+bst.insert(89)
+bst.insert(64)
+bst.insert(104)
+bst.insert(1)
+bst.insert(-34)
+bst.insert(9)
+bst.insert(17)
+bst.insert(13)
+bst.insert(77)
+bst.insert(63)
+bst.insert(52)
+bst.insert(59)
+bst.insert(41)
+bst.insert(13)
+bst.insert(384)
+bst.insert(134)
+bst.insert(222)
+bst.insert(3266)
+bst.insert(4265)
+bst.insert(8)
 
-def debug(msg):
-    if outputdebug:
-        print msg
-
-class Node():
-    def __init__(self, key):
-        self.key = key
-        self.left = None 
-        self.right = None 
-
-
-
-
-class AVLTree():
-    def __init__(self, *args):
-        self.node = None 
-        self.height = -1  
-        self.balance = 0; 
-        
-        if len(args) == 1: 
-            for i in args[0]: 
-                self.insert(i)
-                
-    def height(self):
-        if self.node: 
-            return self.node.height 
-        else: 
-            return 0 
-    
-    def is_leaf(self):
-        return (self.height == 0) 
-    
-    def insert(self, key):
-        tree = self.node
-        
-        newnode = Node(key)
-        
-        if tree == None:
-            self.node = newnode 
-            self.node.left = AVLTree() 
-            self.node.right = AVLTree()
-            debug("Inserted key [" + str(key) + "]")
-        
-        elif key < tree.key: 
-            self.node.left.insert(key)
-            
-        elif key > tree.key: 
-            self.node.right.insert(key)
-        
-        else: 
-            debug("Key [" + str(key) + "] already in tree.")
-            
-        self.rebalance() 
-        
-    def rebalance(self):
-        ''' 
-        Rebalance a particular (sub)tree
-        ''' 
-        # key inserted. Let's check if we're balanced
-        self.update_heights(False)
-        self.update_balances(False)
-        while self.balance < -1 or self.balance > 1: 
-            if self.balance > 1:
-                if self.node.left.balance < 0:  
-                    self.node.left.lrotate() # we're in case II
-                    self.update_heights()
-                    self.update_balances()
-                self.rrotate()
-                self.update_heights()
-                self.update_balances()
-                
-            if self.balance < -1:
-                if self.node.right.balance > 0:  
-                    self.node.right.rrotate() # we're in case III
-                    self.update_heights()
-                    self.update_balances()
-                self.lrotate()
-                self.update_heights()
-                self.update_balances()
-
-
-            
-    def rrotate(self):
-        # Rotate left pivoting on self
-        debug ('Rotating ' + str(self.node.key) + ' right') 
-        A = self.node 
-        B = self.node.left.node 
-        T = B.right.node 
-        
-        self.node = B 
-        B.right.node = A 
-        A.left.node = T 
-
-    
-    def lrotate(self):
-        # Rotate left pivoting on self
-        debug ('Rotating ' + str(self.node.key) + ' left') 
-        A = self.node 
-        B = self.node.right.node 
-        T = B.left.node 
-        
-        self.node = B 
-        B.left.node = A 
-        A.right.node = T 
-        
-            
-    def update_heights(self, recurse=True):
-        if not self.node == None: 
-            if recurse: 
-                if self.node.left != None: 
-                    self.node.left.update_heights()
-                if self.node.right != None:
-                    self.node.right.update_heights()
-            
-            self.height = max(self.node.left.height,
-                              self.node.right.height) + 1 
-        else: 
-            self.height = -1 
-            
-    def update_balances(self, recurse=True):
-        if not self.node == None: 
-            if recurse: 
-                if self.node.left != None: 
-                    self.node.left.update_balances()
-                if self.node.right != None:
-                    self.node.right.update_balances()
-
-            self.balance = self.node.left.height - self.node.right.height 
-        else: 
-            self.balance = 0 
-
-    def delete(self, key):
-        # debug("Trying to delete at node: " + str(self.node.key))
-        if self.node != None: 
-            if self.node.key == key: 
-                debug("Deleting ... " + str(key))  
-                if self.node.left.node == None and self.node.right.node == None:
-                    self.node = None # leaves can be killed at will 
-                # if only one subtree, take that 
-                elif self.node.left.node == None: 
-                    self.node = self.node.right.node
-                elif self.node.right.node == None: 
-                    self.node = self.node.left.node
-                
-                # worst-case: both children present. Find logical successor
-                else:  
-                    replacement = self.logical_successor(self.node)
-                    if replacement != None: # sanity check 
-                        debug("Found replacement for " + str(key) + " -> " + str(replacement.key))  
-                        self.node.key = replacement.key 
-                        
-                        # replaced. Now delete the key from right child 
-                        self.node.right.delete(replacement.key)
-                    
-                self.rebalance()
-                return  
-            elif key < self.node.key: 
-                self.node.left.delete(key)  
-            elif key > self.node.key: 
-                self.node.right.delete(key)
-                        
-            self.rebalance()
-        else: 
-            return 
-
-    def logical_predecessor(self, node):
-        ''' 
-        Find the biggest valued node in LEFT child
-        ''' 
-        node = node.left.node 
-        if node != None: 
-            while node.right != None:
-                if node.right.node == None: 
-                    return node 
-                else: 
-                    node = node.right.node  
-        return node 
-    
-    def logical_successor(self, node):
-        ''' 
-        Find the smallese valued node in RIGHT child
-        ''' 
-        node = node.right.node  
-        if node != None: # just a sanity check  
-            
-            while node.left != None:
-                debug("LS: traversing: " + str(node.key))
-                if node.left.node == None: 
-                    return node 
-                else: 
-                    node = node.left.node  
-        return node 
-
-    def check_balanced(self):
-        if self == None or self.node == None: 
-            return True
-        
-        # We always need to make sure we are balanced 
-        self.update_heights()
-        self.update_balances()
-        return ((abs(self.balance) < 2) and self.node.left.check_balanced() and self.node.right.check_balanced())  
-        
-    def inorder_traverse(self):
-        if self.node == None:
-            return [] 
-        
-        inlist = [] 
-        l = self.node.left.inorder_traverse()
-        for i in l: 
-            inlist.append(i) 
-
-        inlist.append(self.node.key)
-
-        l = self.node.right.inorder_traverse()
-        for i in l: 
-            inlist.append(i) 
-    
-        return inlist 
-
-    def display(self, level=0, pref=''):
-        '''
-        Display the whole tree. Uses recursive def.
-        TODO: create a better display using breadth-first search
-        '''        
-        self.update_heights()  # Must update heights before balances 
-        self.update_balances()
-        if(self.node != None): 
-            print '-' * level * 2, pref, self.node.key, "[" + str(self.height) + ":" + str(self.balance) + "]", 'L' if self.is_leaf() else ' '    
-            if self.node.left != None: 
-                self.node.left.display(level + 1, '<')
-            if self.node.left != None:
-                self.node.right.display(level + 1, '>')
-        
-
-
-
-# Usage example
-if __name__ == "__main__": 
-    a = AVLTree()
-    print "----- Inserting -------"
-    #inlist = [5, 2, 12, -4, 3, 21, 19, 25]
-    inlist = [7, 5, 2, 6, 3, 4, 1, 8, 9, 0]
-    for i in inlist: 
-        a.insert(i)
-         
-    a.display()
-    
-    print "----- Deleting -------"
-    a.delete(3)
-    a.delete(4)
-    # a.delete(5) 
-    a.display()
-    
-    print 
-    print "Input            :", inlist 
-    print "deleting ...       ", 3
-    print "deleting ...       ", 4
-    print "Inorder traversal:", a.inorder_traverse() 
+print(bst.preorder())
+print(bst.postorder())
+print(bst.inorder())

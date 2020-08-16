@@ -1,3 +1,3 @@
 # linkedlist
 
-[Tutorial](https://realpython.com/linked-lists-python/)
+[Tutorial](https://realpython.com/linked-lists-python/)  
